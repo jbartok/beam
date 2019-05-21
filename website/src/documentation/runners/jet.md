@@ -24,19 +24,20 @@ limitations under the License.
 The Hazelcast Jet Runner can be used to execute Beam pipelines using [Hazelcat
 Jet](https://jet.hazelcast.org/). 
 
-The Jet Runner and Jet are suitable for large scale, continuous jobs, and provide:
-* Support for both batch and data stream processing
+The Jet Runner and Jet are suitable for large scale continuous jobs and provide:
+* Support for both batch (bounded) and streaming (unbounded) data sets
 * A runtime that supports very high throughput and low event latency at the same time
 * Natural back-pressure in streaming programs
+* Distributed massively parallel data processing engine with in memory storage 
 
 It's important to note that the Jet Runner is currently in an *EXPERIMENTAL* state and can not make use of many of
 the capabilities present in Jet:
-* while Jet has full Fault Tolerance support, the Jet Runner does not; if a job fails it must be restarted
-* while Jet's internal performance is extremely high (see [benchmarks](https://jet.hazelcast.org/performance/)), 
-the Runner can't match it as of now, because Beam pipeline optimization/surgery has not been fully implemented
+* Jet has full Fault Tolerance support, the Jet Runner does not; if a job fails it must be restarted
+* Internal performance of Jet is extremely high (see [benchmarks](https://jet.hazelcast.org/performance/)). 
+The Runner can't match it as of now because Beam pipeline optimization/surgery has not been fully implemented.
 
 The [Beam Capability Matrix]({{ site.baseurl }}/documentation/runners/capability-matrix/) documents the
-supported capabilities of the Nemo Runner.
+supported capabilities of the Jet Runner.
 
 # Running WordCount with the Hazelcast Jet Runner
 
@@ -113,12 +114,11 @@ Generate the Examples Maven Project just like when the archetype is local:
 ```
 
 ## Generating the Beam examples project from RELEASED versions of Beam ##
-This does not work yet, since the released Beam versions don't contain the Jet Runner yet, but when they will
-then the procedure will be exactly the same as for SNAPSHOTS above. Only the `archetypeVersion` param will 
-need to be set up properly.
+
+Caution: The released Beam versions don't contain the Jet Runner yet. The SNAPSHOT version has to be used until Jet is released.
 
 ## Running WordCount on a Local Jet Cluster ##
-Issue following command in the Beam examples project and the Runner will automatically start the needed cluster.
+Issue following command in the Beam examples project to start new Jet cluster and run the WordCount example on it.
 ```
     $ mvn package exec:java \
         -DskipTests \
@@ -135,11 +135,12 @@ Issue following command in the Beam examples project and the Runner will automat
 
 ## Running WordCount on a Remote Jet Cluster ##
 Download latest stable Hazelcast Jet code from [Hazelcast Website](https://jet.hazelcast.org/download/) and 
-install/unarchive it. Let's say it ends up in a folder called "hazelcast-jet-3.0". Go there and start a new 
-cluster with two members (for more sophisticated cluster setups consult the 
-[Hazelcast Reference Manual](https://docs.hazelcast.org/docs/jet/3.0/manual/):
+start Jet cluster. 
+The simplest way is to start Jet cluster member using the `jet-start` script that comes with Jet distribution.
+The members use the [auto discovery feature](https://docs.hazelcast.org/docs/3.12/manual/html-single/index.html#setting-up-clusters) to form a cluster.
+
 ```
-    $ cd hazelcast-jet-3.0
+    $ cd hazelcast-jet/bin/
     $ ./jet-start.sh &
     $ ./jet-start.sh &
 ```
@@ -163,9 +164,11 @@ ADDRESS                  UUID
 Download [Jet Management Center](https://docs.hazelcast.org/docs/jet-management-center/3.0/manual/)
 from the same location and use it to monitor your cluster and later executions.
 
-Go to the Beam Examples project and issue following command to execute your Pipeline on this cluster (just make sure
-to use an input file which is present on the machines running the cluster and use the right addresses for the cluster
-members, as visualized by the above check):
+Change directory to the Beam Examples project and issue following command to submit and execute your 
+Pipeline on the remote Jet cluster.
+Make sure to distribute the input file (file with the words to be counted) to all machines where the
+cluster runs. The word count job won't be able to read the data otherwise.
+
 ```
     $ mvn package exec:java \
         -DskipTests \
