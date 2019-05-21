@@ -40,11 +40,6 @@ supported capabilities of the Nemo Runner.
 
 # Running WordCount with the Hazelcast Jet Runner
 
-Since the Jet Runner is a newcomer in the Beam Runner family it did not yet make it
-into a released version of Beam. Because of that using it is a bit cumbersome. 
-Cumbersome but possible and once a release of it will be made it will be just as
-convenient to use as any other Runner.
-
 ## Generating the Beam examples project from SOURCES ##
 
 Get the [Beam module](https://github.com/apache/beam.git): 
